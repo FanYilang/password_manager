@@ -352,6 +352,18 @@ function initElements() {
     elements.confirmModal = document.getElementById('confirm-modal');
     elements.btnConfirmCancel = document.getElementById('btn-confirm-cancel');
     elements.btnConfirmDelete = document.getElementById('btn-confirm-delete');
+    // 导出导入相关
+    elements.btnExport = document.getElementById('btn-export');
+    elements.btnImport = document.getElementById('btn-import');
+    elements.exportModal = document.getElementById('export-modal');
+    elements.exportForm = document.getElementById('export-form');
+    elements.exportPassword = document.getElementById('export-password');
+    elements.btnExportCancel = document.getElementById('btn-export-cancel');
+    elements.importModal = document.getElementById('import-modal');
+    elements.importForm = document.getElementById('import-form');
+    elements.importFile = document.getElementById('import-file');
+    elements.importPassword = document.getElementById('import-password');
+    elements.btnImportCancel = document.getElementById('btn-import-cancel');
 }
 
 function showSetupView() {
@@ -623,6 +635,242 @@ async function handleDelete() {
     }
 }
 
+// ==================== 导出导入功能 ====================
+
+function openExportModal() {
+    elements.exportForm.reset();
+    elements.exportModal.style.display = 'flex';
+    elements.exportPassword.focus();
+}
+
+function closeExportModal() {
+    elements.exportModal.style.display = 'none';
+    elements.exportForm.reset();
+}
+
+async function handleExport(e) {
+    e.preventDefault();
+    
+    const password = elements.exportPassword.value;
+    if (!password) {
+        showToast('请输入密码');
+        return;
+    }
+    
+    try {
+        const credentials = CredentialService.getAll();
+        
+        // 生成唯一的salt和IV
+        const salt = generateSalt();
+        const iv = generateIV();
+        
+        // 从主密码派生密钥
+        const key = await deriveKey(password, salt);
+        
+        // 准备要加密的数据
+        const payload = {
+            credentials: credentials,
+            exportedAt: new Date().toISOString()
+        };
+        const plaintext = JSON.stringify(payload);
+        
+        // 加密数据
+        const encoder = new TextEncoder();
+        const plaintextBuffer = encoder.encode(plaintext);
+        
+        const encryptedBuffer = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            key,
+            plaintextBuffer
+        );
+        
+        // 构建同步文件格式
+        const syncFile = {
+            version: '1.0',
+            exportedAt: new Date().toISOString(),
+            salt: arrayBufferToBase64(salt),
+            iv: arrayBufferToBase64(iv),
+            ciphertext: arrayBufferToBase64(new Uint8Array(encryptedBuffer))
+        };
+        
+        // 生成带时间戳的文件名
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const filename = `password-backup-${timestamp}.json`;
+        
+        // 创建Blob并触发下载
+        const json = JSON.stringify(syncFile, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        closeExportModal();
+        showToast(`已导出 ${credentials.length} 个凭证`);
+    } catch (e) {
+        showToast('导出失败: ' + e.message);
+    }
+}
+
+function openImportModal() {
+    elements.importForm.reset();
+    elements.importModal.style.display = 'flex';
+}
+
+function closeImportModal() {
+    elements.importModal.style.display = 'none';
+    elements.importForm.reset();
+}
+
+async function handleImport(e) {
+    e.preventDefault();
+    
+    const file = elements.importFile.files[0];
+    if (!file) {
+        showToast('请选择文件');
+        return;
+    }
+    
+    const password = elements.importPassword.value;
+    if (!password) {
+        showToast('请输入密码');
+        return;
+    }
+    
+    const strategy = document.querySelector('input[name="merge-strategy"]:checked').value;
+    
+    try {
+        // 读取文件内容
+        const content = await file.text();
+        
+        // 解析JSON
+        let syncFile;
+        try {
+            syncFile = JSON.parse(content);
+        } catch (e) {
+            throw new Error('文件格式无效：不是有效的JSON');
+        }
+        
+        // 验证文件结构
+        if (!syncFile.version || !syncFile.salt || !syncFile.iv || !syncFile.ciphertext) {
+            throw new Error('文件格式无效：缺少必要字段');
+        }
+        
+        // 解码salt和iv
+        const salt = base64ToArrayBuffer(syncFile.salt);
+        const iv = base64ToArrayBuffer(syncFile.iv);
+        const ciphertext = base64ToArrayBuffer(syncFile.ciphertext);
+        
+        // 从主密码派生密钥
+        const key = await deriveKey(password, salt);
+        
+        // 解密数据
+        let decryptedBuffer;
+        try {
+            decryptedBuffer = await crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv: iv },
+                key,
+                ciphertext
+            );
+        } catch (e) {
+            throw new Error('密码错误或文件已损坏');
+        }
+        
+        // 解析解密后的数据
+        const decoder = new TextDecoder();
+        const plaintext = decoder.decode(decryptedBuffer);
+        
+        let payload;
+        try {
+            payload = JSON.parse(plaintext);
+        } catch (e) {
+            throw new Error('解密数据格式无效');
+        }
+        
+        if (!Array.isArray(payload.credentials)) {
+            throw new Error('解密数据格式无效：缺少凭证数组');
+        }
+        
+        // 获取现有凭证
+        const existing = CredentialService.getAll();
+        
+        // 合并凭证
+        const getCredentialKey = (cred) => `${cred.siteName.toLowerCase()}|${cred.username.toLowerCase()}`;
+        const existingMap = new Map();
+        existing.forEach(cred => {
+            existingMap.set(getCredentialKey(cred), cred);
+        });
+        
+        let added = 0;
+        let updated = 0;
+        let skipped = 0;
+        
+        for (const importedCred of payload.credentials) {
+            const key = getCredentialKey(importedCred);
+            const existingCred = existingMap.get(key);
+            
+            if (!existingCred) {
+                // 新凭证，直接添加
+                await CredentialService.add({
+                    siteName: importedCred.siteName,
+                    username: importedCred.username,
+                    password: importedCred.password,
+                    notes: importedCred.notes || ''
+                });
+                added++;
+            } else {
+                // 重复凭证，根据策略处理
+                switch (strategy) {
+                    case 'replace':
+                        // 替换现有凭证
+                        await CredentialService.update(existingCred.id, {
+                            siteName: importedCred.siteName,
+                            username: importedCred.username,
+                            password: importedCred.password,
+                            notes: importedCred.notes || ''
+                        });
+                        updated++;
+                        break;
+                        
+                    case 'skip':
+                        // 跳过，保留现有凭证
+                        skipped++;
+                        break;
+                        
+                    case 'newer':
+                        // 保留较新的
+                        const importedTime = importedCred.updatedAt || 0;
+                        const existingTime = existingCred.updatedAt || 0;
+                        if (importedTime > existingTime) {
+                            await CredentialService.update(existingCred.id, {
+                                siteName: importedCred.siteName,
+                                username: importedCred.username,
+                                password: importedCred.password,
+                                notes: importedCred.notes || ''
+                            });
+                            updated++;
+                        } else {
+                            skipped++;
+                        }
+                        break;
+                }
+            }
+        }
+        
+        // 重新加载凭证列表
+        await loadCredentials();
+        
+        closeImportModal();
+        showToast(`导入完成：新增 ${added}，更新 ${updated}，跳过 ${skipped}`);
+    } catch (e) {
+        showToast('导入失败: ' + e.message);
+    }
+}
+
 function bindEvents() {
     elements.btnSetup.addEventListener('click', handleSetup);
     elements.confirmMasterPassword.addEventListener('keypress', (e) => {
@@ -653,6 +901,20 @@ function bindEvents() {
     });
     elements.confirmModal.addEventListener('click', (e) => {
         if (e.target === elements.confirmModal) closeDeleteConfirm();
+    });
+    
+    // 导出导入功能
+    elements.btnExport.addEventListener('click', openExportModal);
+    elements.exportForm.addEventListener('submit', handleExport);
+    elements.btnExportCancel.addEventListener('click', closeExportModal);
+    elements.exportModal.addEventListener('click', (e) => {
+        if (e.target === elements.exportModal) closeExportModal();
+    });
+    elements.btnImport.addEventListener('click', openImportModal);
+    elements.importForm.addEventListener('submit', handleImport);
+    elements.btnImportCancel.addEventListener('click', closeImportModal);
+    elements.importModal.addEventListener('click', (e) => {
+        if (e.target === elements.importModal) closeImportModal();
     });
 }
 
