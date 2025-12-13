@@ -4,6 +4,7 @@
 
 import { AuthService } from './services/auth.js';
 import { CredentialService } from './services/credential.js';
+import { SyncService } from './services/sync.js';
 import { maskPassword, showToast } from './utils/helpers.js';
 
 // DOM元素引用
@@ -45,7 +46,20 @@ const elements = {
     // 确认对话框
     confirmModal: document.getElementById('confirm-modal'),
     btnConfirmCancel: document.getElementById('btn-confirm-cancel'),
-    btnConfirmDelete: document.getElementById('btn-confirm-delete')
+    btnConfirmDelete: document.getElementById('btn-confirm-delete'),
+    
+    // 同步相关
+    btnExport: document.getElementById('btn-export'),
+    btnImport: document.getElementById('btn-import'),
+    importModal: document.getElementById('import-modal'),
+    importForm: document.getElementById('import-form'),
+    importFile: document.getElementById('import-file'),
+    importPassword: document.getElementById('import-password'),
+    btnImportCancel: document.getElementById('btn-import-cancel'),
+    exportModal: document.getElementById('export-modal'),
+    exportForm: document.getElementById('export-form'),
+    exportPassword: document.getElementById('export-password'),
+    btnExportCancel: document.getElementById('btn-export-cancel')
 };
 
 // 当前要删除的凭证ID
@@ -354,6 +368,20 @@ function bindEvents() {
     elements.confirmModal.addEventListener('click', (e) => {
         if (e.target === elements.confirmModal) closeDeleteConfirm();
     });
+    
+    // 同步功能
+    elements.btnExport.addEventListener('click', openExportModal);
+    elements.exportForm.addEventListener('submit', handleExport);
+    elements.btnExportCancel.addEventListener('click', closeExportModal);
+    elements.exportModal.addEventListener('click', (e) => {
+        if (e.target === elements.exportModal) closeExportModal();
+    });
+    elements.btnImport.addEventListener('click', openImportModal);
+    elements.importForm.addEventListener('submit', handleImport);
+    elements.btnImportCancel.addEventListener('click', closeImportModal);
+    elements.importModal.addEventListener('click', (e) => {
+        if (e.target === elements.importModal) closeImportModal();
+    });
 }
 
 /**
@@ -468,6 +496,135 @@ async function handleDelete() {
         renderCredentialList();
     } catch (e) {
         showToast('删除失败: ' + e.message);
+    }
+}
+
+/**
+ * 打开导出模态框
+ */
+function openExportModal() {
+    elements.exportForm.reset();
+    elements.exportModal.style.display = 'flex';
+    elements.exportPassword.focus();
+}
+
+/**
+ * 关闭导出模态框
+ */
+function closeExportModal() {
+    elements.exportModal.style.display = 'none';
+    elements.exportForm.reset();
+}
+
+/**
+ * 处理导出
+ * @param {Event} e
+ */
+async function handleExport(e) {
+    e.preventDefault();
+    
+    const password = elements.exportPassword.value;
+    if (!password) {
+        showToast('请输入密码');
+        return;
+    }
+    
+    try {
+        const credentials = CredentialService.getAll();
+        const blob = await SyncService.exportCredentials(password);
+        
+        // 生成带时间戳的文件名
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const filename = `password-backup-${timestamp}.json`;
+        
+        // 触发下载
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        closeExportModal();
+        showToast(`已导出 ${credentials.length} 个凭证`);
+    } catch (e) {
+        showToast('导出失败: ' + e.message);
+    }
+}
+
+/**
+ * 打开导入模态框
+ */
+function openImportModal() {
+    elements.importForm.reset();
+    elements.importModal.style.display = 'flex';
+}
+
+/**
+ * 关闭导入模态框
+ */
+function closeImportModal() {
+    elements.importModal.style.display = 'none';
+    elements.importForm.reset();
+}
+
+/**
+ * 处理导入
+ * @param {Event} e 
+ */
+async function handleImport(e) {
+    e.preventDefault();
+    
+    const file = elements.importFile.files[0];
+    if (!file) {
+        showToast('请选择文件');
+        return;
+    }
+    
+    const password = elements.importPassword.value;
+    if (!password) {
+        showToast('请输入密码');
+        return;
+    }
+    
+    const strategy = document.querySelector('input[name="merge-strategy"]:checked').value;
+    
+    try {
+        // 解密导入的文件
+        const imported = await SyncService.importCredentials(file, password);
+        
+        // 获取现有凭证
+        const existing = CredentialService.getAll();
+        
+        // 合并凭证
+        const { result, added, updated, skipped } = SyncService.mergeCredentials(
+            imported.credentials,
+            existing,
+            strategy
+        );
+        
+        // 只添加新凭证
+        for (const cred of result) {
+            const existingCred = CredentialService.getById(cred.id);
+            if (!existingCred) {
+                await CredentialService.add({
+                    siteName: cred.siteName,
+                    username: cred.username,
+                    password: cred.password,
+                    notes: cred.notes
+                });
+            }
+        }
+        
+        // 重新加载凭证列表
+        await loadCredentials();
+        
+        closeImportModal();
+        showToast(`导入完成：新增 ${added}，更新 ${updated}，跳过 ${skipped}`);
+    } catch (e) {
+        showToast('导入失败: ' + e.message);
     }
 }
 

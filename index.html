@@ -39,6 +39,12 @@
                 <input type="text" id="search-input" placeholder="搜索网站或账号...">
             </div>
 
+            <!-- 同步工具栏 -->
+            <div class="sync-toolbar">
+                <button id="btn-export" class="btn-sync" title="导出凭证">📤 导出</button>
+                <button id="btn-import" class="btn-sync" title="导入凭证">📥 导入</button>
+            </div>
+
             <!-- 添加按钮 -->
             <button id="btn-add" class="btn-add">+ 添加新凭证</button>
 
@@ -101,6 +107,62 @@
                     <button id="btn-confirm-cancel" class="btn-secondary">取消</button>
                     <button id="btn-confirm-delete" class="btn-danger">删除</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- 导入模态框 -->
+        <div id="import-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>导入凭证</h2>
+                <form id="import-form">
+                    <div class="form-group">
+                        <label for="import-file">选择备份文件</label>
+                        <input type="file" id="import-file" accept=".json" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="import-password">输入主密码（用于解密备份文件）</label>
+                        <input type="password" id="import-password" placeholder="输入主密码" required>
+                    </div>
+                    <div class="form-group">
+                        <label>冲突处理策略</label>
+                        <div class="radio-group"></div>
+                            <label class="radio-label">
+                                <input type="radio" name="merge-strategy" value="skip" checked>
+                                <span>跳过重复项（保留现有）</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="merge-strategy" value="replace">
+                                <span>替换重复项（使用导入的）</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="merge-strategy" value="newer">
+                                <span>保留较新的</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="btn-import-cancel" class="btn-secondary">取消</button>
+                        <button type="submit" class="btn-primary">导入</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 导出密码模态框 -->
+        <div id="export-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>导出凭证</h2>
+                <form id="export-form">
+                    <div class="form-group">
+                        <label for="export-password">输入主密码（用于加密备份文件）</label>
+                        <input type="password" id="export-password" placeholder="输入主密码" required>
+                    </div>
+                    <p class="hint-text">备份文件将使用此密码加密，导入时需要相同密码。</p>
+                    <div class="form-actions">
+                        <button type="button" id="btn-export-cancel" class="btn-secondary">取消</button>
+                        <button type="submit" class="btn-primary">导出</button>
+                    </div>
+                </form>
             </div>
         </div>
 
