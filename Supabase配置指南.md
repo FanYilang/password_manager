@@ -141,8 +141,8 @@ CREATE POLICY "Users can delete their own credentials"
 
 打开记事本，保存这两个信息：
 ```
-Project URL: https://xxxxx.supabase.co
-API Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Project URL: https://sflbywafjqusukjtozzd.supabase.co
+API Key: sb_publishable_b3c4JHA9cksQzoZml1XTyw_DqC8OcnF
 ```
 
 ---
