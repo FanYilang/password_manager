@@ -153,6 +153,8 @@ body::before {
 .auth-tab.active {
     background: var(--gradient-primary);
     color: #ffffff;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
 }
 
@@ -478,8 +480,8 @@ body::before {
 
 /* ==================== 凭证列表 ==================== */
 .credential-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 18px;
 }
 
@@ -830,22 +832,78 @@ body::before {
 }
 
 /* ==================== 响应式设计 ==================== */
+
+/* 平板端 - 一行2个 */
 @media (min-width: 768px) {
     .app-container {
+        max-width: 800px;
         padding: 40px;
     }
 
     .auth-card {
         margin-top: 10vh;
         padding: 56px 48px;
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .credential-list {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .credential-item {
-        padding: 26px;
+        padding: 22px;
     }
 
     .modal-content {
         padding: 40px;
+    }
+}
+
+/* 电脑端 - 一行3个 */
+@media (min-width: 1024px) {
+    .app-container {
+        max-width: 1100px;
+        padding: 40px 50px;
+    }
+
+    .credential-list {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .credential-item {
+        padding: 24px;
+    }
+
+    .header {
+        margin-bottom: 30px;
+    }
+
+    .search-bar {
+        max-width: 400px;
+    }
+
+    .sync-toolbar {
+        max-width: 400px;
+    }
+
+    .btn-add {
+        max-width: 300px;
+    }
+}
+
+/* 大屏幕 - 一行4个 */
+@media (min-width: 1400px) {
+    .app-container {
+        max-width: 1400px;
+        padding: 50px 60px;
+    }
+
+    .credential-list {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
     }
 }
 

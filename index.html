@@ -6,117 +6,18 @@
     <title>密码管理器 - 云同步版</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        /* 额外的样式用于登录/注册界面 */
-        .auth-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-        }
-        
-        .auth-tab {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            cursor: pointer;
-            font-size: 16px;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-        
+        /* 覆盖登录/注册标签样式 - 选中时更醒目 */
         .auth-tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-            font-weight: 600;
+            background: var(--gradient-primary);
+            color: #ffffff !important;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
         }
         
-        .auth-tab:hover {
-            color: var(--primary-color);
-        }
-        
-        .auth-panel {
-            display: none;
-        }
-        
-        .auth-panel.active {
-            display: block;
-        }
-        
-        .sync-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: var(--bg-color);
-            border-radius: 6px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-        
-        .sync-status.syncing {
-            color: var(--primary-color);
-        }
-        
-        .sync-status.synced {
-            color: var(--success-color);
-        }
-        
-        .sync-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success-color);
-        }
-        
-        .sync-indicator.syncing {
-            background: var(--primary-color);
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: var(--bg-color);
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 18px;
-        }
-        
-        .user-details {
-            flex: 1;
-        }
-        
-        .user-email {
-            font-size: 14px;
-            color: var(--text-color);
-            font-weight: 500;
-        }
-        
-        .user-status {
-            font-size: 12px;
-            color: var(--text-secondary);
+        .auth-tab:hover:not(.active) {
+            color: #ffffff;
+            background: rgba(124, 58, 237, 0.3);
         }
     </style>
 </head>
