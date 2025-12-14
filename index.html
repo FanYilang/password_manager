@@ -20,7 +20,18 @@
             background: rgba(124, 58, 237, 0.3);
         }
 
-        /* 电脑端布局优化 */
+        /* 手机端 - 单列布局 */
+        .credential-list {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+        }
+        
+        .credential-item {
+            width: 100% !important;
+        }
+
+        /* 电脑端布局优化 - 一行3个 */
         @media (min-width: 768px) {
             .app-container {
                 max-width: 1600px !important;
