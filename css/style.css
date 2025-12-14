@@ -105,12 +105,15 @@ body::before {
     gap: 10px;
 }
 
-.auth-card h1 .emoji {
-    -webkit-text-fill-color: initial;
-    background: none;
+.emoji {
+    -webkit-text-fill-color: initial !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    color: inherit !important;
 }
 
-.auth-card h1 .title-text {
+.title-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -357,17 +360,7 @@ body::before {
     gap: 8px;
 }
 
-.header h1 .emoji {
-    -webkit-text-fill-color: initial;
-    background: none;
-}
-
-.header h1 .title-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
+/* emoji 和 title-text 样式已在上方统一定义 */
 
 .btn-icon {
     background: var(--card-bg);
