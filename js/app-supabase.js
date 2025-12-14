@@ -209,24 +209,69 @@ async function handleRegister(e) {
     }
     
     try {
+        console.log('开始注册...', { email });
+        
         const { data, error } = await supabase.auth.signUp({
             email: email,
-            password: password
+            password: password,
+            options: {
+                emailRedirectTo: window.location.origin
+            }
         });
+        
+        console.log('注册响应:', { data, error });
         
         if (error) throw error;
         
-        showToast('注册成功！请查收邮箱验证邮件');
-        elements.authError.textContent = '✅ 注册成功！请查收邮箱验证邮件，验证后即可登录';
-        elements.authError.style.color = 'var(--success-color)';
+        // 检查是否需要邮箱验证
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+            elements.authError.textContent = '⚠️ 该邮箱已被注册，请直接登录';
+            elements.authError.style.color = 'var(--danger-color)';
+            setTimeout(() => {
+                document.querySelector('[data-tab="login"]').click();
+                document.getElementById('login-email').value = email;
+            }, 2000);
+            return;
+        }
+        
+        // 检查是否需要邮箱确认
+        if (data.user && !data.session) {
+            showToast('注册成功！请查收邮箱验证邮件');
+            elements.authError.textContent = '✅ 注册成功！请查收邮箱验证邮件，验证后即可登录';
+            elements.authError.style.color = 'var(--success-color)';
+        } else {
+            // 如果关闭了邮箱验证，直接登录
+            showToast('注册成功！');
+            elements.authError.textContent = '✅ 注册成功！正在自动登录...';
+            elements.authError.style.color = 'var(--success-color)';
+            
+            // 自动登录
+            setTimeout(async () => {
+                const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (!loginError && loginData.user) {
+                    const salt = new TextEncoder().encode(email);
+                    encryptionKey = await deriveKeyFromPassword(password, salt);
+                    currentUser = loginData.user;
+                    await showMainView();
+                }
+            }, 1000);
+        }
         
         // 切换到登录面板
         setTimeout(() => {
-            document.querySelector('[data-tab="login"]').click();
-            document.getElementById('login-email').value = email;
+            if (!data.session) {
+                document.querySelector('[data-tab="login"]').click();
+                document.getElementById('login-email').value = email;
+            }
         }, 2000);
     } catch (error) {
-        elements.authError.textContent = error.message || '注册失败';
+        console.error('注册错误:', error);
+        elements.authError.textContent = '注册失败: ' + (error.message || '未知错误');
+        elements.authError.style.color = 'var(--danger-color)';
     }
 }
 
