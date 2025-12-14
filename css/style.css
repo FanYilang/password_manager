@@ -98,11 +98,23 @@ body::before {
     margin-bottom: 8px;
     font-size: 32px;
     font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.auth-card h1 .emoji {
+    -webkit-text-fill-color: initial;
+    background: none;
+}
+
+.auth-card h1 .title-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    letter-spacing: -0.5px;
 }
 
 .auth-card > p {
@@ -339,11 +351,22 @@ body::before {
 .header h1 {
     font-size: 28px;
     font-weight: 800;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header h1 .emoji {
+    -webkit-text-fill-color: initial;
+    background: none;
+}
+
+.header h1 .title-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    letter-spacing: -0.5px;
 }
 
 .btn-icon {
