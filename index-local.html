@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码管理器</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 登录/设置主密码界面 -->
+        <div id="auth-view" class="view">
+            <div class="auth-card">
+                <h1>🔐 密码管理器</h1>
+                <div id="auth-setup" class="auth-form" style="display: none;">
+                    <p>首次使用，请设置主密码</p>
+                    <input type="password" id="new-master-password" placeholder="输入主密码" autocomplete="new-password">
+                    <input type="password" id="confirm-master-password" placeholder="确认主密码" autocomplete="new-password">
+                    <button id="btn-setup">设置主密码</button>
+                </div>
+                <div id="auth-login" class="auth-form" style="display: none;">
+                    <p>请输入主密码解锁</p>
+                    <input type="password" id="master-password" placeholder="输入主密码" autocomplete="current-password">
+                    <button id="btn-unlock">解锁</button>
+                </div>
+                <p id="auth-error" class="error-message"></p>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <div id="main-view" class="view" style="display: none;">
+            <header class="header">
+                <h1>🔐 密码管理器</h1>
+                <button id="btn-lock" class="btn-icon" title="锁定">🔒</button>
+            </header>
+
+            <!-- 搜索栏 -->
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="搜索网站或账号...">
+            </div>
+
+            <!-- 同步工具栏 -->
+            <div class="sync-toolbar">
+                <button id="btn-export" class="btn-sync" title="导出凭证">📤 导出</button>
+                <button id="btn-import" class="btn-sync" title="导入凭证">📥 导入</button>
+            </div>
+
+            <!-- 添加按钮 -->
+            <button id="btn-add" class="btn-add">+ 添加新凭证</button>
+
+            <!-- 凭证列表 -->
+            <div id="credential-list" class="credential-list">
+                <!-- 凭证项将通过JS动态生成 -->
+            </div>
+
+            <!-- 空列表提示 -->
+            <div id="empty-message" class="empty-message" style="display: none;">
+                <p>📭 暂无保存的凭证</p>
+                <p>点击上方按钮添加第一个凭证</p>
+            </div>
+
+            <!-- 无搜索结果提示 -->
+            <div id="no-results" class="empty-message" style="display: none;">
+                <p>🔍 未找到匹配的凭证</p>
+            </div>
+        </div>
+
+        <!-- 添加/编辑凭证模态框 -->
+        <div id="credential-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2 id="modal-title">添加凭证</h2>
+                <form id="credential-form">
+                    <input type="hidden" id="credential-id">
+                    <div class="form-group">
+                        <label for="site-name">网站/软件名称</label>
+                        <input type="text" id="site-name" required placeholder="例如：淘宝、微信">
+                    </div>
+                    <div class="form-group">
+                        <label for="username">账号/用户名</label>
+                        <input type="text" id="username" required placeholder="例如：user@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" required placeholder="输入密码">
+                            <button type="button" id="toggle-password" class="btn-icon">👁</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">备注（可选）</label>
+                        <textarea id="notes" placeholder="添加备注信息"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="btn-cancel" class="btn-secondary">取消</button>
+                        <button type="submit" class="btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 删除确认对话框 -->
+        <div id="confirm-modal" class="modal" style="display: none;">
+            <div class="modal-content modal-confirm">
+                <h2>确认删除</h2>
+                <p>确定要删除这个凭证吗？此操作无法撤销。</p>
+                <div class="form-actions">
+                    <button id="btn-confirm-cancel" class="btn-secondary">取消</button>
+                    <button id="btn-confirm-delete" class="btn-danger">删除</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导入模态框 -->
+        <div id="import-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>导入凭证</h2>
+                <form id="import-form">
+                    <div class="form-group">
+                        <label for="import-file">选择备份文件</label>
+                        <input type="file" id="import-file" accept=".json" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="import-password">输入主密码（用于解密备份文件）</label>
+                        <input type="password" id="import-password" placeholder="输入主密码" required>
+                    </div>
+                    <div class="form-group">
+                        <label>冲突处理策略</label>
+                        <div class="radio-group"></div>
+                            <label class="radio-label">
+                                <input type="radio" name="merge-strategy" value="skip" checked>
+                                <span>跳过重复项（保留现有）</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="merge-strategy" value="replace">
+                                <span>替换重复项（使用导入的）</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="merge-strategy" value="newer">
+                                <span>保留较新的</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="btn-import-cancel" class="btn-secondary">取消</button>
+                        <button type="submit" class="btn-primary">导入</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 导出密码模态框 -->
+        <div id="export-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>导出凭证</h2>
+                <form id="export-form">
+                    <div class="form-group">
+                        <label for="export-password">输入主密码（用于加密备份文件）</label>
+                        <input type="password" id="export-password" placeholder="输入主密码" required>
+                    </div>
+                    <p class="hint-text">备份文件将使用此密码加密，导入时需要相同密码。</p>
+                    <div class="form-actions">
+                        <button type="button" id="btn-export-cancel" class="btn-secondary">取消</button>
+                        <button type="submit" class="btn-primary">导出</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 提示消息 -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="js/bundle.js"></script>
+</body>
+</html>

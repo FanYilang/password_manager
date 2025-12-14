@@ -3,35 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>密码管理器</title>
+    <title>密码管理器 - 云同步版</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 额外的样式用于登录/注册界面 */
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .auth-tab:hover {
+            color: var(--primary-color);
+        }
+        
+        .auth-panel {
+            display: none;
+        }
+        
+        .auth-panel.active {
+            display: block;
+        }
+        
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-color);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        
+        .sync-status.syncing {
+            color: var(--primary-color);
+        }
+        
+        .sync-status.synced {
+            color: var(--success-color);
+        }
+        
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+        }
+        
+        .sync-indicator.syncing {
+            background: var(--primary-color);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-email {
+            font-size: 14px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        
+        .user-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- 登录/设置主密码界面 -->
+        <!-- 登录/注册界面 -->
         <div id="auth-view" class="view">
             <div class="auth-card">
                 <h1>🔐 密码管理器</h1>
-                <div id="auth-setup" class="auth-form" style="display: none;">
-                    <p>首次使用，请设置主密码</p>
-                    <input type="password" id="new-master-password" placeholder="输入主密码" autocomplete="new-password">
-                    <input type="password" id="confirm-master-password" placeholder="确认主密码" autocomplete="new-password">
-                    <button id="btn-setup">设置主密码</button>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">云同步版 - 多设备自动同步</p>
+                
+                <!-- 标签切换 -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">登录</button>
+                    <button class="auth-tab" data-tab="register">注册</button>
                 </div>
-                <div id="auth-login" class="auth-form" style="display: none;">
-                    <p>请输入主密码解锁</p>
-                    <input type="password" id="master-password" placeholder="输入主密码" autocomplete="current-password">
-                    <button id="btn-unlock">解锁</button>
+                
+                <!-- 登录面板 -->
+                <div id="login-panel" class="auth-panel active">
+                    <form id="login-form" class="auth-form">
+                        <input type="email" id="login-email" placeholder="邮箱地址" required autocomplete="email">
+                        <input type="password" id="login-password" placeholder="密码" required autocomplete="current-password">
+                        <button type="submit" class="btn-primary">登录</button>
+                    </form>
                 </div>
+                
+                <!-- 注册面板 -->
+                <div id="register-panel" class="auth-panel">
+                    <form id="register-form" class="auth-form">
+                        <input type="email" id="register-email" placeholder="邮箱地址" required autocomplete="email">
+                        <input type="password" id="register-password" placeholder="密码（至少6位）" required autocomplete="new-password">
+                        <input type="password" id="register-confirm" placeholder="确认密码" required autocomplete="new-password">
+                        <button type="submit" class="btn-primary">注册</button>
+                    </form>
+                </div>
+                
                 <p id="auth-error" class="error-message"></p>
             </div>
         </div>
 
         <!-- 主界面 -->
         <div id="main-view" class="view" style="display: none;">
+            <!-- 用户信息 -->
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="user-details">
+                    <div class="user-email" id="user-email">user@example.com</div>
+                    <div class="user-status">已登录</div>
+                </div>
+                <button id="btn-logout" class="btn-icon" title="退出登录">🚪</button>
+            </div>
+            
+            <!-- 同步状态 -->
+            <div class="sync-status" id="sync-status">
+                <span class="sync-indicator"></span>
+                <span id="sync-text">已同步</span>
+            </div>
+            
             <header class="header">
-                <h1>🔐 密码管理器</h1>
-                <button id="btn-lock" class="btn-icon" title="锁定">🔒</button>
+                <h1>🔐 我的密码</h1>
+                <button id="btn-lock" class="btn-icon" title="锁定" style="display: none;">🔒</button>
             </header>
 
             <!-- 搜索栏 -->
@@ -41,8 +187,8 @@
 
             <!-- 同步工具栏 -->
             <div class="sync-toolbar">
-                <button id="btn-export" class="btn-sync" title="导出凭证">📤 导出</button>
-                <button id="btn-import" class="btn-sync" title="导入凭证">📥 导入</button>
+                <button id="btn-export" class="btn-sync" title="导出凭证">📤 导出备份</button>
+                <button id="btn-refresh" class="btn-sync" title="刷新数据">🔄 刷新</button>
             </div>
 
             <!-- 添加按钮 -->
@@ -110,52 +256,15 @@
             </div>
         </div>
 
-        <!-- 导入模态框 -->
-        <div id="import-modal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <h2>导入凭证</h2>
-                <form id="import-form">
-                    <div class="form-group">
-                        <label for="import-file">选择备份文件</label>
-                        <input type="file" id="import-file" accept=".json" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="import-password">输入主密码（用于解密备份文件）</label>
-                        <input type="password" id="import-password" placeholder="输入主密码" required>
-                    </div>
-                    <div class="form-group">
-                        <label>冲突处理策略</label>
-                        <div class="radio-group"></div>
-                            <label class="radio-label">
-                                <input type="radio" name="merge-strategy" value="skip" checked>
-                                <span>跳过重复项（保留现有）</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="merge-strategy" value="replace">
-                                <span>替换重复项（使用导入的）</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="merge-strategy" value="newer">
-                                <span>保留较新的</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" id="btn-import-cancel" class="btn-secondary">取消</button>
-                        <button type="submit" class="btn-primary">导入</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- 导出密码模态框 -->
+        <!-- 导出模态框 -->
         <div id="export-modal" class="modal" style="display: none;">
             <div class="modal-content">
-                <h2>导出凭证</h2>
+                <h2>导出备份</h2>
+                <p class="hint-text">导出所有凭证为加密的备份文件</p>
                 <form id="export-form">
                     <div class="form-group">
-                        <label for="export-password">输入主密码（用于加密备份文件）</label>
-                        <input type="password" id="export-password" placeholder="输入主密码" required>
+                        <label for="export-password">设置备份密码</label>
+                        <input type="password" id="export-password" placeholder="输入密码保护备份文件" required>
                     </div>
                     <p class="hint-text">备份文件将使用此密码加密，导入时需要相同密码。</p>
                     <div class="form-actions">
@@ -170,6 +279,13 @@
         <div id="toast" class="toast"></div>
     </div>
 
-    <script src="js/bundle.js"></script>
+    <!-- Supabase 客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 配置文件 -->
+    <script src="js/config/supabase-config.js"></script>
+    
+    <!-- 主应用 -->
+    <script src="js/app-supabase.js"></script>
 </body>
 </html>
