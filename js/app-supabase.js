@@ -191,25 +191,32 @@ async function handleLogin(e) {
 
 async function handleRegister(e) {
     e.preventDefault();
+    console.log('========== 注册按钮被点击 ==========');
     
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
     const confirm = document.getElementById('register-confirm').value;
     
-    elements.authError.textContent = '';
+    console.log('输入信息:', { email, passwordLength: password.length, confirmLength: confirm.length });
+    
+    elements.authError.textContent = '正在注册...';
+    elements.authError.style.color = 'var(--primary-color)';
     
     if (password !== confirm) {
         elements.authError.textContent = '两次输入的密码不一致';
+        elements.authError.style.color = 'var(--danger-color)';
         return;
     }
     
     if (password.length < 6) {
         elements.authError.textContent = '密码至少需要6位';
+        elements.authError.style.color = 'var(--danger-color)';
         return;
     }
     
     try {
-        console.log('开始注册...', { email });
+        console.log('开始调用 Supabase 注册 API...');
+        console.log('邮箱:', email);
         
         const { data, error } = await supabase.auth.signUp({
             email: email,
@@ -730,20 +737,37 @@ function bindEvents() {
 // ==================== 初始化 ====================
 
 async function init() {
-    // 检查用户登录状态
-    const { data: { session } } = await supabase.auth.getSession();
+    console.log('=== 密码管理器初始化 ===');
+    console.log('Supabase URL:', SUPABASE_CONFIG.url);
+    console.log('Supabase Key 前20字符:', SUPABASE_CONFIG.anonKey.substring(0, 20) + '...');
     
-    if (session) {
-        currentUser = session.user;
-        // 注意：这里无法恢复加密密钥，需要用户重新登录
-        showAuthView();
-        showToast('请重新登录以解密数据');
-    } else {
-        showAuthView();
+    try {
+        // 测试 Supabase 连接
+        console.log('测试 Supabase 连接...');
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+            console.error('Supabase 连接错误:', error);
+        } else {
+            console.log('Supabase 连接成功！');
+            console.log('当前会话:', data.session ? '已登录' : '未登录');
+        }
+        
+        if (data.session) {
+            currentUser = data.session.user;
+            // 注意：这里无法恢复加密密钥，需要用户重新登录
+            showAuthView();
+            showToast('请重新登录以解密数据');
+        } else {
+            showAuthView();
+        }
+    } catch (e) {
+        console.error('初始化错误:', e);
     }
     
     // 监听认证状态变化
     supabase.auth.onAuthStateChange((event, session) => {
+        console.log('认证状态变化:', event);
         if (event === 'SIGNED_OUT') {
             currentUser = null;
             encryptionKey = null;
@@ -752,7 +776,9 @@ async function init() {
     });
     
     bindEvents();
+    console.log('=== 初始化完成，事件已绑定 ===');
 }
 
 // 启动应用
+console.log('开始加载应用...');
 init();
