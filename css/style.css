@@ -6,84 +6,169 @@
 }
 
 :root {
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --primary-light: rgba(99, 102, 241, 0.1);
-    --danger-color: #ef4444;
-    --danger-hover: #dc2626;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --bg-color: #0f172a;
-    --bg-secondary: #1e293b;
-    --card-bg: #1e293b;
-    --card-hover: #334155;
-    --text-color: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --border-color: #334155;
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
-    --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-2: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    --glass-bg: rgba(30, 41, 59, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary-color: #7c3aed;
+    --primary-hover: #6d28d9;
+    --primary-light: rgba(124, 58, 237, 0.15);
+    --accent-color: #06b6d4;
+    --danger-color: #f43f5e;
+    --danger-hover: #e11d48;
+    --success-color: #22c55e;
+    --warning-color: #eab308;
+    --bg-color: #030712;
+    --bg-secondary: #111827;
+    --card-bg: rgba(17, 24, 39, 0.7);
+    --card-hover: rgba(31, 41, 55, 0.8);
+    --text-color: #f9fafb;
+    --text-secondary: #9ca3af;
+    --border-color: rgba(75, 85, 99, 0.4);
+    --shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 60px rgba(124, 58, 237, 0.3);
+    --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #06b6d4 100%);
+    --gradient-card: linear-gradient(145deg, rgba(124, 58, 237, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+    --glass-bg: rgba(17, 24, 39, 0.85);
+    --glass-border: rgba(124, 58, 237, 0.2);
 }
 
+/* 动态背景 */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-color);
     color: var(--text-color);
     line-height: 1.6;
     min-height: 100vh;
-    background-image: 
-        radial-gradient(at 20% 80%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-        radial-gradient(at 80% 20%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 40% 40%, rgba(99, 102, 241, 0.1) 0px, transparent 50%);
-    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(ellipse 80% 50% at 20% -20%, rgba(124, 58, 237, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(6, 182, 212, 0.2) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 30% at 50% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
 }
 
 .app-container {
-    max-width: 500px;
+    max-width: 520px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px;
     min-height: 100vh;
+    position: relative;
 }
 
-/* 认证界面 */
+/* ==================== 认证界面 ==================== */
 .auth-card {
     background: var(--glass-bg);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    padding: 40px 32px;
-    box-shadow: var(--shadow-lg);
+    border-radius: 28px;
+    padding: 48px 36px;
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
     text-align: center;
-    margin-top: 15vh;
+    margin-top: 12vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(124, 58, 237, 0.1), transparent 30%);
+    animation: rotate 8s linear infinite;
+    z-index: -1;
+}
+
+@keyframes rotate {
+    100% { transform: rotate(360deg); }
 }
 
 .auth-card h1 {
     margin-bottom: 8px;
-    font-size: 28px;
-    font-weight: 700;
-    background: var(--gradient-2);
+    font-size: 32px;
+    font-weight: 800;
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    letter-spacing: -0.5px;
 }
 
+.auth-card > p {
+    color: var(--text-secondary);
+    margin-bottom: 28px;
+    font-size: 15px;
+}
+
+/* 认证标签 */
+.auth-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 16px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-tab.active {
+    background: var(--gradient-primary);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+}
+
+.auth-tab:hover:not(.active) {
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.auth-panel {
+    display: none;
+}
+
+.auth-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* 认证表单 */
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin-top: 24px;
+    gap: 18px;
 }
 
 .auth-form input {
-    padding: 14px 18px;
+    padding: 16px 20px;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 15px;
     width: 100%;
-    background: var(--bg-secondary);
+    background: rgba(0, 0, 0, 0.3);
     color: var(--text-color);
     transition: all 0.3s ease;
 }
@@ -95,101 +180,71 @@ body {
 .auth-form input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-light);
+    box-shadow: 0 0 0 4px var(--primary-light), 0 0 20px rgba(124, 58, 237, 0.2);
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .auth-form button {
-    padding: 14px 24px;
-    background: var(--gradient-2);
+    padding: 16px 28px;
+    background: var(--gradient-primary);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .auth-form button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(124, 58, 237, 0.5);
+}
+
+.auth-form button:active {
+    transform: translateY(-1px);
 }
 
 .error-message {
     color: var(--danger-color);
     font-size: 14px;
-    margin-top: 16px;
-    padding: 12px;
-    background: rgba(239, 68, 68, 0.1);
-    border-radius: 8px;
-}
-
-/* 认证标签 */
-.auth-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 24px;
-    background: var(--bg-color);
+    margin-top: 18px;
+    padding: 14px 18px;
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.2);
     border-radius: 12px;
-    padding: 4px;
+    text-align: left;
 }
 
-.auth-tab {
-    flex: 1;
-    padding: 12px;
-    background: none;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    transition: all 0.3s ease;
-}
-
-.auth-tab.active {
-    background: #4f46e5;
-    color: #ffffff !important;
-    font-weight: 600;
-}
-
-.auth-tab:hover:not(.active) {
-    color: var(--text-color);
-}
-
-.auth-panel {
-    display: none;
-}
-
-.auth-panel.active {
-    display: block;
-}
-
-/* 用户信息 */
+/* ==================== 用户信息 ==================== */
 .user-info {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 16px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    margin-bottom: 20px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
 }
 
 .user-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: var(--gradient-2);
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-weight: 700;
-    font-size: 20px;
+    font-weight: 800;
+    font-size: 22px;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
 }
 
 .user-details {
@@ -197,9 +252,9 @@ body {
 }
 
 .user-email {
-    font-size: 15px;
+    font-size: 16px;
     color: var(--text-color);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .user-status {
@@ -207,7 +262,8 @@ body {
     color: var(--success-color);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    margin-top: 2px;
 }
 
 .user-status::before {
@@ -216,36 +272,40 @@ body {
     height: 8px;
     background: var(--success-color);
     border-radius: 50%;
-    animation: pulse-dot 2s ease-in-out infinite;
+    box-shadow: 0 0 10px var(--success-color);
+    animation: pulse-glow 2s ease-in-out infinite;
 }
 
-@keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--success-color); }
+    50% { opacity: 0.6; box-shadow: 0 0 5px var(--success-color); }
 }
 
-/* 同步状态 */
+/* ==================== 同步状态 ==================== */
 .sync-status {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--bg-secondary);
-    border-radius: 12px;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
     font-size: 14px;
+    font-weight: 500;
     color: var(--text-secondary);
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     border: 1px solid var(--border-color);
 }
 
 .sync-status.syncing {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--accent-color);
+    border-color: rgba(6, 182, 212, 0.3);
+    background: rgba(6, 182, 212, 0.1);
 }
 
 .sync-status.synced {
     color: var(--success-color);
-    border-color: var(--success-color);
+    border-color: rgba(34, 197, 94, 0.3);
 }
 
 .sync-indicator {
@@ -253,44 +313,48 @@ body {
     height: 10px;
     border-radius: 50%;
     background: var(--success-color);
+    box-shadow: 0 0 10px var(--success-color);
 }
 
 .sync-indicator.syncing {
-    background: var(--primary-color);
-    animation: pulse 1.5s ease-in-out infinite;
+    background: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+    animation: pulse 1.2s ease-in-out infinite;
 }
 
 @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 0.5; transform: scale(0.85); }
 }
 
-/* 头部 */
+/* ==================== 头部 ==================== */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 0;
-    margin-bottom: 20px;
+    padding: 20px 0;
+    margin-bottom: 24px;
 }
 
 .header h1 {
-    font-size: 24px;
-    font-weight: 700;
-    background: var(--gradient-2);
+    font-size: 28px;
+    font-weight: 800;
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    letter-spacing: -0.5px;
 }
 
 .btn-icon {
-    background: var(--bg-secondary);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     font-size: 18px;
     cursor: pointer;
-    padding: 10px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    padding: 12px;
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--text-color);
 }
 
@@ -298,27 +362,28 @@ body {
     background: var(--card-hover);
     border-color: var(--primary-color);
     transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* 搜索栏 */
+/* ==================== 搜索栏 ==================== */
 .search-bar {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 .search-bar input {
     width: 100%;
-    padding: 14px 18px;
-    padding-left: 48px;
+    padding: 16px 20px 16px 52px;
     border: 1px solid var(--border-color);
-    border-radius: 14px;
+    border-radius: 16px;
     font-size: 15px;
-    background: var(--bg-secondary);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
     color: var(--text-color);
     transition: all 0.3s ease;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: 16px center;
-    background-size: 20px;
+    background-position: 18px center;
+    background-size: 22px;
 }
 
 .search-bar input::placeholder {
@@ -328,31 +393,32 @@ body {
 .search-bar input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-light);
+    box-shadow: 0 0 0 4px var(--primary-light), 0 0 30px rgba(124, 58, 237, 0.15);
 }
 
-/* 同步工具栏 */
+/* ==================== 工具栏 ==================== */
 .sync-toolbar {
     display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 14px;
+    margin-bottom: 24px;
 }
 
 .btn-sync {
     flex: 1;
-    padding: 12px 16px;
-    background: var(--bg-secondary);
+    padding: 14px 18px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
     color: var(--text-color);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .btn-sync:hover {
@@ -360,142 +426,177 @@ body {
     border-color: var(--primary-color);
     color: var(--primary-color);
     transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* 添加按钮 */
+/* ==================== 添加按钮 ==================== */
 .btn-add {
     width: 100%;
-    padding: 16px;
-    background: var(--gradient-2);
+    padding: 18px;
+    background: var(--gradient-primary);
     color: white;
     border: none;
-    border-radius: 14px;
+    border-radius: 16px;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    margin-bottom: 24px;
-    transition: all 0.3s ease;
+    margin-bottom: 28px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
 }
 
 .btn-add:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(124, 58, 237, 0.5);
 }
 
-/* 凭证列表 */
+.btn-add:active {
+    transform: translateY(-1px);
+}
+
+/* ==================== 凭证列表 ==================== */
 .credential-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
 }
 
 .credential-item {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 20px;
-    transition: all 0.3s ease;
+    border-radius: 20px;
+    padding: 22px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.credential-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .credential-item:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary-color);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(124, 58, 237, 0.15);
+    border-color: rgba(124, 58, 237, 0.4);
+}
+
+.credential-item:hover::before {
+    opacity: 1;
 }
 
 .credential-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .credential-site {
-    font-weight: 700;
-    font-size: 17px;
+    font-weight: 800;
+    font-size: 18px;
     color: var(--text-color);
+    letter-spacing: -0.3px;
 }
 
 .credential-actions {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .credential-actions .btn-icon {
-    padding: 8px;
+    padding: 10px;
     font-size: 16px;
+    border-radius: 12px;
 }
 
 .credential-username {
     color: var(--text-secondary);
     font-size: 14px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .credential-password {
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: var(--bg-color);
-    padding: 12px 14px;
-    border-radius: 10px;
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
     border: 1px solid var(--border-color);
 }
 
 .credential-password span {
     flex: 1;
     word-break: break-all;
-    font-size: 14px;
-    letter-spacing: 1px;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--accent-color);
 }
 
 .credential-password .btn-icon {
-    padding: 6px;
-    font-size: 14px;
+    padding: 8px;
+    font-size: 15px;
     background: transparent;
     border: none;
 }
 
-/* 空列表提示 */
+.credential-password .btn-icon:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ==================== 空列表提示 ==================== */
 .empty-message {
     text-align: center;
-    padding: 60px 20px;
+    padding: 80px 24px;
     color: var(--text-secondary);
 }
 
 .empty-message p:first-child {
-    font-size: 48px;
-    margin-bottom: 16px;
+    font-size: 64px;
+    margin-bottom: 20px;
+    filter: grayscale(0.3);
 }
 
 .empty-message p:last-child {
-    font-size: 15px;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
-/* 模态框 */
+/* ==================== 模态框 ==================== */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(12px);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 24px;
     z-index: 1000;
-    animation: fadeIn 0.2s ease;
+    animation: fadeIn 0.25s ease;
 }
 
 @keyframes fadeIn {
@@ -504,33 +605,38 @@ body {
 }
 
 .modal-content {
-    background: var(--card-bg);
+    background: var(--bg-secondary);
     border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 28px;
+    border-radius: 24px;
+    padding: 32px;
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     max-height: 90vh;
     overflow-y: auto;
-    animation: slideUp 0.3s ease;
+    animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
 
 @keyframes slideUp {
     from { 
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px) scale(0.95);
     }
     to { 
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
 .modal-content h2 {
-    margin-bottom: 24px;
-    font-size: 22px;
-    font-weight: 700;
+    margin-bottom: 28px;
+    font-size: 24px;
+    font-weight: 800;
     color: var(--text-color);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .modal-confirm {
@@ -538,32 +644,35 @@ body {
 }
 
 .modal-confirm p {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     color: var(--text-secondary);
-    font-size: 15px;
+    font-size: 16px;
+    line-height: 1.6;
 }
 
-/* 表单 */
+/* ==================== 表单 ==================== */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
+    margin-bottom: 10px;
+    font-weight: 700;
     font-size: 14px;
     color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .form-group input,
 .form-group textarea {
     width: 100%;
-    padding: 14px 16px;
+    padding: 16px 18px;
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 14px;
     font-size: 15px;
-    background: var(--bg-color);
+    background: rgba(0, 0, 0, 0.3);
     color: var(--text-color);
     transition: all 0.3s ease;
 }
@@ -577,12 +686,14 @@ body {
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-light);
+    box-shadow: 0 0 0 4px var(--primary-light);
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .form-group textarea {
-    min-height: 100px;
+    min-height: 110px;
     resize: vertical;
+    font-family: inherit;
 }
 
 .password-input-wrapper {
@@ -592,45 +703,49 @@ body {
 }
 
 .password-input-wrapper input {
-    padding-right: 50px;
+    padding-right: 54px;
 }
 
 .password-input-wrapper .btn-icon {
     position: absolute;
-    right: 8px;
+    right: 10px;
     background: transparent;
     border: none;
+    padding: 8px;
 }
 
 .form-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 28px;
+    gap: 14px;
+    margin-top: 32px;
 }
 
 .form-actions button {
     flex: 1;
-    padding: 14px;
-    border-radius: 12px;
+    padding: 16px;
+    border-radius: 14px;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .btn-primary {
-    background: var(--gradient-2);
+    background: var(--gradient-primary);
     color: white;
     border: none;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
 }
 
 .btn-secondary {
-    background: var(--bg-color);
+    background: transparent;
     color: var(--text-color);
     border: 1px solid var(--border-color);
 }
@@ -641,28 +756,29 @@ body {
 }
 
 .btn-danger {
-    background: var(--danger-color);
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
     color: white;
     border: none;
+    box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
 }
 
 .btn-danger:hover {
-    background: var(--danger-hover);
     transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(244, 63, 94, 0.5);
 }
 
-/* 提示消息 */
+/* ==================== 提示消息 ==================== */
 .toast {
     position: fixed;
-    bottom: 30px;
+    bottom: 36px;
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--card-bg);
+    transform: translateX(-50%) translateY(120px);
+    background: var(--bg-secondary);
     color: var(--text-color);
-    padding: 14px 28px;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 500;
+    padding: 16px 32px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 600;
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     z-index: 1001;
@@ -675,19 +791,18 @@ body {
     transform: translateX(-50%) translateY(0);
 }
 
-/* 提示文本 */
+/* ==================== 其他 ==================== */
 .hint-text {
     font-size: 13px;
     color: var(--text-secondary);
-    margin-top: 8px;
-    margin-bottom: 16px;
-    line-height: 1.5;
+    margin-top: 10px;
+    margin-bottom: 18px;
+    line-height: 1.6;
 }
 
-/* 进度指示器 */
 .spinner {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border: 2px solid var(--border-color);
     border-top-color: var(--primary-color);
     border-radius: 50%;
@@ -698,23 +813,23 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* 响应式设计 */
+/* ==================== 响应式设计 ==================== */
 @media (min-width: 768px) {
     .app-container {
-        padding: 32px;
+        padding: 40px;
     }
 
     .auth-card {
-        margin-top: 12vh;
-        padding: 48px 40px;
+        margin-top: 10vh;
+        padding: 56px 48px;
     }
 
     .credential-item {
-        padding: 24px;
+        padding: 26px;
     }
 
     .modal-content {
-        padding: 36px;
+        padding: 40px;
     }
 }
 
@@ -724,13 +839,17 @@ body {
     }
 
     .auth-card {
-        padding: 28px 20px;
-        margin-top: 8vh;
-        border-radius: 20px;
+        padding: 32px 24px;
+        margin-top: 6vh;
+        border-radius: 24px;
+    }
+
+    .auth-card h1 {
+        font-size: 26px;
     }
 
     .header h1 {
-        font-size: 20px;
+        font-size: 22px;
     }
 
     .credential-actions {
@@ -744,9 +863,14 @@ body {
     .sync-toolbar {
         flex-direction: column;
     }
+
+    .btn-add {
+        padding: 16px;
+        font-size: 15px;
+    }
 }
 
-/* 滚动条美化 */
+/* ==================== 滚动条美化 ==================== */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -762,4 +886,10 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary);
+}
+
+/* ==================== 选择文本样式 ==================== */
+::selection {
+    background: var(--primary-color);
+    color: white;
 }
