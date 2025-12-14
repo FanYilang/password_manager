@@ -580,8 +580,7 @@ async function handleSearch() {
         }));
         
         const filtered = query === '' ? credentials : credentials.filter(c =>
-            c.site_name.toLowerCase().includes(query) ||
-            c.username.toLowerCase().includes(query)
+            c.site_name.toLowerCase().includes(query)
         );
         
         renderCredentialList(filtered);
