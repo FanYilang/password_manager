@@ -9,10 +9,10 @@
 
 const SUPABASE_CONFIG = {
     // 你的 Supabase 项目 URL
-    url: 'https://sflbywafjqusukjtozd.supabase.co',
+    url: 'https://sflbywafjqusukjtozzd.supabase.co',
     
     // 你的 Supabase anon public key
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmbGJ5d2FmanF1c3VranRvemQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc2NTY5MzI2MCwiZXhwIjoyMDgxMjY5MjYwfQ.36KQxhS-7zbcqa7uPXikS_8HMKBSGkzbWb3P-SGljRo'
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmbGJ5d2FmanF1c3VranRvenpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2OTMyNjAsImV4cCI6MjA4MTI2OTI2MH0.36KQxhS-7zbcqa7uPXikS_8HMKBSGkzbWb3P-SGljRo'
 };
 
 // 导出配置
